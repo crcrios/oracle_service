@@ -1,4 +1,4 @@
-name: Elixir CI
+# Build and push image
 
 on:
 #  push:
@@ -13,7 +13,7 @@ on:
         description: 'ECR repository name where image will be deployed to'     
         required: true
 
-name: CI Action Elixir
+name: Elixir CI
 
 jobs:
 unit-test:
