@@ -13,60 +13,61 @@ on:
         description: 'ECR repository name where image will be deployed to'     
         required: true
 
-  name: CI Action Elixir
-  jobs:
-    unit-test:
-      name: Unit Test
-      runs-on: ubuntu-latest
+name: CI Action Elixir
 
-      steps:
-      - uses: actions/checkout@v3
-      - name: Set up Elixir
-        uses: erlef/setup-beam@988e02bfe678367a02564f65ca2e37726dc0268f
-        with:
-          elixir-version: '1.12.3' # Define the elixir version [required]
-          otp-version: '24.1' # Define the OTP version [required]
-      - name: Restore dependencies cache
-        uses: actions/cache@v3
-        with:
-          path: deps
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ runner.os }}-mix-
-      - name: Install dependencies
-        run: mix deps.get
-      - name: Run tests
-        run: mix test
-        
-        
-    build-and-push:
-      name: Build and push image
-      runs-on: ubuntu-latest
+jobs:
+unit-test:
+  name: Unit Test
+  runs-on: ubuntu-latest
 
-      steps:
-        - name: Check out code
-          uses: actions/checkout@v3
-
-        - name: Configure AWS credentials
-          id: creds
-          uses: aws-actions/configure-aws-credentials@v1
-          with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-            aws-region: us-east-1
-        
-        - name: Login to Amazon ECR
-          id: login-ecr
-          uses: aws-actions/amazon-ecr-login@v1
-
-        - name: Build, tag, and push image to Amazon ECR
-          env:
-            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REPOSITORY: ${{ github.event.inputs.ecrRepository }}
-            IMAGE_TAG: cash_in_service_v${{ github.run_number }}
-          run: |
-            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-
+  steps:
+  - uses: actions/checkout@v3
+  - name: Set up Elixir
+    uses: erlef/setup-beam@988e02bfe678367a02564f65ca2e37726dc0268f
+    with:
+      elixir-version: '1.12.3' # Define the elixir version [required]
+      otp-version: '24.1' # Define the OTP version [required]
+  - name: Restore dependencies cache
+    uses: actions/cache@v3
+    with:
+      path: deps
+      key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+      restore-keys: ${{ runner.os }}-mix-
+  - name: Install dependencies
+    run: mix deps.get
+  - name: Run tests
+    run: mix test
     
+    
+build-and-push:
+  name: Build and push image
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      id: creds
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: us-east-1
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ github.event.inputs.ecrRepository }}
+        IMAGE_TAG: cash_in_service_v${{ github.run_number }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+
+
