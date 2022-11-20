@@ -15,7 +15,7 @@ on:
 
 
   jobs:
-    test:
+    unit-test:
       name: Unit Test
       runs-on: ubuntu-latest
 
