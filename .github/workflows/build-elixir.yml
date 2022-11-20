@@ -1,4 +1,4 @@
-name: Elixir CI
+# Build and push image
 
 on:
 #  push:
@@ -6,17 +6,18 @@ on:
 #  pull_request:
 #    branches: [ "main" ]
 
-# Allows you to run this workflow manually from the Actions tab
-workflow_dispatch:
-  inputs:
-    ecrRepository:
-      description: 'ECR repository name where image will be deployed to'     
-      required: true
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      ecrRepository:
+        description: 'ECR repository name where image will be deployed to'     
+        required: true
 
+name: Elixir CI
 
 jobs:
-  test:
-    name: test
+  unit-test:
+    name: Unit Test
     runs-on: ubuntu-latest
 
     steps:
@@ -44,7 +45,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         id: creds
@@ -69,4 +70,4 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
 
-  
+
