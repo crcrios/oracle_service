@@ -33,14 +33,20 @@ jobs:
     name: SonarQube
     runs-on: ubuntu-latest
     steps:
-      - name: SonarQube Scanner Action
-        uses: philips-software/sonar-scanner-action@v1.5.1
+      - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.SONARQUBE_TOKEN }}
-          projectName: Oracle Service
-          projectKey: project.key.from.sonar.qube
-          url: http://ec2-54-242-150-198.compute-1.amazonaws.com:9000/
-          isCommunityEdition: true
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: http://ec2-54-242-150-198.compute-1.amazonaws.com:9000
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # - uses: sonarsource/sonarqube-quality-gate-action@master
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
 
   unit-test:
     name: Unit Test
