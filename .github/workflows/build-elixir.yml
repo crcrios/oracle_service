@@ -44,6 +44,7 @@ jobs:
       
       - name: LS
         run: ls
+        run: cat credo_result.json
 
       - uses: gahorstmann/credo-sonar-convert@main
         with:
