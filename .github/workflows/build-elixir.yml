@@ -37,18 +37,21 @@ jobs:
           restore-keys: ${{ runner.os }}-mix-
       - name: Install dependencies
         run: mix deps.get
-      - name: LS
-        run: ls
-
     
       - name: Credo 
         run: |
           mix credo --strict --verbose --format json 2>&1 | tee credo_result.json
+      
+      - name: LS
+        run: ls
 
       - uses: gahorstmann/credo-sonar-convert@main
         with:
           input-file: 'credo_result.json'
           output-file: 'credo_sonarqube.json'
+          
+      - name: LS
+        run: ls
 
       - uses: actions/checkout@v2
         with:
