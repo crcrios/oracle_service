@@ -28,6 +28,19 @@ on:
 name: Elixir CI
 
 jobs:
+
+  sonarqube:
+  name: SonarQube
+    runs-on: self-hosted
+    steps:
+      - uses: philips-software/sonar-scanner-action@<version>
+        with:
+          token: ${{ secrets.SONARQUBE_TOKEN }}
+          projectName: Oracle Service
+          projectKey: project.key.from.sonar.qube
+          url: http://ec2-54-242-150-198.compute-1.amazonaws.com:9000/
+          isCommunityEdition: true
+
   unit-test:
     name: Unit Test
     runs-on: ubuntu-latest
