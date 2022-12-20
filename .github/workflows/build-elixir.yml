@@ -31,7 +31,7 @@ jobs:
 
   sonarqube:
     name: SonarQube
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: philips-software/sonar-scanner-action@<version>
         with:
