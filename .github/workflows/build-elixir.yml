@@ -33,7 +33,8 @@ jobs:
     name: SonarQube
     runs-on: ubuntu-latest
     steps:
-      - uses: philips-software/sonar-scanner-action@<version>
+      - name: SonarQube Scanner Action
+        uses: philips-software/sonar-scanner-action@v1.5.1
         with:
           token: ${{ secrets.SONARQUBE_TOKEN }}
           projectName: Oracle Service
