@@ -12,18 +12,7 @@ on:
       appName:
         description: 'app name for image tag name' 
         required: true
-      ecrRepository:
-        description: 'ECR repository name where image will be deployed to'     
-        required: true
-      AWS_ACCESS_KEY_ID:
-        description: 'AWS_ACCESS_KEY_ID'     
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        description: 'AWS_SECRET_ACCESS_KEY'     
-        required: true
-      AWS_SESSION_TOKEN:
-        description: 'AWS_SESSION_TOKEN'     
-        required: true
+
 
 name: Elixir CI
 
