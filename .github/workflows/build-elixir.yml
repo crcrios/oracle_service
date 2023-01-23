@@ -42,8 +42,8 @@ jobs:
         
       - name: Build, tag, and push image to Amazon ECR
         env:
-          ECR_REGISTRY: TEST
-          ECR_REPOSITORY: oracleService
+          ECR_REGISTRY: test
+          ECR_REPOSITORY: oracle_service
           IMAGE_TAG: ${{ github.event.inputs.appName }}_v${{ github.run_number }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
