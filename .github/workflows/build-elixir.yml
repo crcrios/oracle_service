@@ -18,74 +18,6 @@ name: Elixir CI
 
 jobs:
 
-  sonarqube:
-    name: SonarQube
-    runs-on: ubuntu-latest
-    steps:
-    
-      - uses: actions/checkout@v3
-      - name: Set up Elixir
-        uses: erlef/setup-beam@v1
-        with:
-          elixir-version: '1.13' # Define the elixir version [required]
-          otp-version: '25' # Define the OTP version [required]
-      - name: Restore dependencies cache
-        uses: actions/cache@v3
-        with:
-          path: deps
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ runner.os }}-mix-
-      - name: Install dependencies
-        run: mix deps.get
-    
-      - name: Credo 
-        run: |
-          mix credo --strict --verbose --format json 2>&1 | tee credo_result.json
-      
-      - name: LS
-        run: ls
-      - name: Cat
-        run: cat credo_result.json
-
-      - uses: gahorstmann/credo-sonar-convert@main
-        with:
-          input-file: 'credo_result.json'
-          output-file: 'credo_sonarqube.json'
-          
-      - name: LS
-        run: ls
-
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-          SONAR_HOST_URL: http://ec2-54-242-150-198.compute-1.amazonaws.com:9000
-        with:
-          args: >
-            -Dsonar.externalIssuesReportPaths=credo_sonarqube.json
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
-      # - uses: sonarsource/sonarqube-quality-gate-action@master
-      #   timeout-minutes: 5
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-
-  sonarcloud:
-    name: SonarCloud
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
   unit-test:
     name: Unit Test
     runs-on: ubuntu-latest
@@ -107,6 +39,24 @@ jobs:
         run: mix deps.get
       - name: Run tests
         run: mix test
+        
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: TEST
+          ECR_REPOSITORY: oracleService
+          IMAGE_TAG: ${{ github.event.inputs.appName }}_v${{ github.run_number }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
 #      - name: Configure AWS credentials
 #        id: creds
