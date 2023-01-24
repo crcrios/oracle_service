@@ -46,12 +46,12 @@ jobs:
           ECR_REPOSITORY: oracle_service
           IMAGE_TAG: ${{ github.event.inputs.appName }}_v${{ github.run_number }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t test/oracle_service:$IMAGE_TAG .
           
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+          image-ref: test/oracle_service:${{ github.event.inputs.appName }}_v${{ github.run_number }}
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
